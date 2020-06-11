@@ -9,13 +9,20 @@ console.time(APP_STARTUP_TIME);
 const { API_URL } = process.env;
 
 class App extends Component {
-  state = { loaded: false };
+  state = { 
+    loaded: false,
+    products: [] 
+  };
 
   componentDidMount() {
-    fetch(`${API_URL}/api/health`)
+    console.log('component did mount ran')
+    fetch(`${API_URL}/api/products`)
       .then((res) => res.json())
-      .then(() => {
-        this.setState({ loaded: true });
+      .then((products) => {
+        this.setState({ 
+          loaded: true,
+          products,
+        }, ()=>console.log('we have state, yes we do,'));
       })
       .catch((e) => {
         console.error(`Failed to load initial health check.`, e);
@@ -23,8 +30,8 @@ class App extends Component {
   }
 
   render() {
-    const { loaded } = this.state;
-
+    const { loaded, products } = this.state;
+    console.log(products);
     return (
       <HashRouter>
         <Switch>
@@ -36,24 +43,21 @@ class App extends Component {
                 width: '100vw',
                 alignItems: 'center',
                 fontFamily: 'Roboto',
+                color: 'black'
               }}
             >
-              <img
-                alt="Beaver"
-                style={{
-                  height: '250px',
-                }}
-                src="https://pbs.twimg.com/profile_images/2779323089/f1d2488fedff90047a32244dbc624e59_400x400.jpeg"
-              />
-              <h2>Beaver</h2>
-              <span
-                style={{
-                  color: loaded ? 'green' : 'gray',
-                  fontSize: '0.8em',
-                }}
-              >
-                {loaded ? 'Connected!' : 'Connecting to API...'}
-              </span>
+              {
+                products.map(el => {
+                  return (
+                    <div key={el.id}>
+                      <h4>{el.name}</h4>
+                      <p>{el.description}</p>
+                      <p>{`$${el.suggestedPrice.toFixed(2)}`}</p> 
+                    </div>
+                  )
+                  
+                })
+              }
             </div>
           </Route>
           <Redirect to="/" />

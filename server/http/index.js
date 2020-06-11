@@ -2,6 +2,7 @@ const express = require('express');
 const chalk = require('chalk');
 const path = require('path');
 const apiRouter = require('./api/index');
+const { readJSON } = require('../db');
 
 const whiteListedUrl = process.env.WHITELISTED_URL || '*';
 
@@ -24,7 +25,22 @@ app.use(customCORSMiddleware);
 // Statically serve webpacks built files
 app.use(express.static(path.join(__dirname, '../../dist')));
 // Include an express router to extend upon
-app.use('/api', apiRouter);
+// app.use('/api', apiRouter);
+
+// const app = express();
+
+// app.use(express.static(path.join(__dirname, '../dist')))
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+})
+
+app.get('/api/products', (req, res) => {
+  readJSON(path.join(__dirname,'../products.json'))
+  .then(data => {
+    res.send(data);
+  });
+})
 
 const startServer = (port, prod) =>
   new Promise((res) => {
